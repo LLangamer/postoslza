@@ -1,0 +1,424 @@
+
+
+
+CREATE SEQUENCE public.usuario_id_usuario_seq_1;
+
+CREATE TABLE public.usuario (
+                id_usuario INTEGER NOT NULL DEFAULT nextval('public.usuario_id_usuario_seq_1'),
+                tipo_permissao INTEGER NOT NULL,
+                nome VARCHAR(100) NOT NULL,
+                foto VARCHAR(100) NOT NULL,
+                CONSTRAINT id_usuario PRIMARY KEY (id_usuario)
+);
+
+
+ALTER SEQUENCE public.usuario_id_usuario_seq_1 OWNED BY public.usuario.id_usuario;
+
+CREATE SEQUENCE public.posto_id_posto_seq;
+
+CREATE TABLE public.posto (
+                id_posto INTEGER NOT NULL DEFAULT nextval('public.posto_id_posto_seq'),
+                bandeira VARCHAR(50) NOT NULL,
+                nome VARCHAR(100) NOT NULL,
+                endereco VARCHAR(200) NOT NULL,
+                horario_a TIME NOT NULL,
+                horario_f TIME NOT NULL,
+                latitude NUMERIC(10,7) NOT NULL,
+                longitude NUMERIC(10,7) NOT NULL,
+                CONSTRAINT id_posto PRIMARY KEY (id_posto)
+);
+
+
+ALTER SEQUENCE public.posto_id_posto_seq OWNED BY public.posto.id_posto;
+
+CREATE SEQUENCE public.servicos_id_servicos_seq;
+
+CREATE TABLE public.servicos (
+                id_servicos INTEGER NOT NULL DEFAULT nextval('public.servicos_id_servicos_seq'),
+                nome VARCHAR(100) NOT NULL,
+                id_posto INTEGER NOT NULL,
+                CONSTRAINT id_servicos PRIMARY KEY (id_servicos)
+);
+
+
+ALTER SEQUENCE public.servicos_id_servicos_seq OWNED BY public.servicos.id_servicos;
+
+CREATE SEQUENCE public.combustivel_id_combustivel_seq;
+
+CREATE TABLE public.combustivel (
+                id_combustivel INTEGER NOT NULL DEFAULT nextval('public.combustivel_id_combustivel_seq'),
+                descricao VARCHAR(100) NOT NULL,
+                preco NUMERIC NOT NULL,
+                id_posto INTEGER NOT NULL,
+                CONSTRAINT id_combustivel PRIMARY KEY (id_combustivel)
+);
+
+
+ALTER SEQUENCE public.combustivel_id_combustivel_seq OWNED BY public.combustivel.id_combustivel;
+
+CREATE SEQUENCE public.produtos_id_produto_seq;
+
+CREATE TABLE public.produtos (
+                id_produto INTEGER NOT NULL DEFAULT nextval('public.produtos_id_produto_seq'),
+                descricao VARCHAR(100) NOT NULL,
+                preco NUMERIC(6,2) NOT NULL,
+                id_posto INTEGER NOT NULL,
+                CONSTRAINT id_produto PRIMARY KEY (id_produto)
+);
+
+
+ALTER SEQUENCE public.produtos_id_produto_seq OWNED BY public.produtos.id_produto;
+
+CREATE SEQUENCE public.telefones_id_telefone_seq;
+
+CREATE TABLE public.telefones (
+                id_telefone INTEGER NOT NULL DEFAULT nextval('public.telefones_id_telefone_seq'),
+                ddd INTEGER NOT NULL,
+                numero VARCHAR NOT NULL,
+                id_posto INTEGER NOT NULL,
+                CONSTRAINT id_telefone PRIMARY KEY (id_telefone)
+);
+
+
+ALTER SEQUENCE public.telefones_id_telefone_seq OWNED BY public.telefones.id_telefone;
+
+CREATE SEQUENCE public.comentarios_id_comentario_seq;
+
+CREATE TABLE public.comentarios (
+                id_comentario INTEGER NOT NULL DEFAULT nextval('public.comentarios_id_comentario_seq'),
+                descricao VARCHAR(300) NOT NULL,
+                id_posto INTEGER NOT NULL,
+                id_usuario INTEGER NOT NULL,
+                CONSTRAINT id_comentario PRIMARY KEY (id_comentario)
+);
+
+
+ALTER SEQUENCE public.comentarios_id_comentario_seq OWNED BY public.comentarios.id_comentario;
+
+ALTER TABLE public.comentarios ADD CONSTRAINT usuario_comentarios_fk
+FOREIGN KEY (id_usuario)
+REFERENCES public.usuario (id_usuario)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.comentarios ADD CONSTRAINT posto_comentarios_fk
+FOREIGN KEY (id_posto)
+REFERENCES public.posto (id_posto)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.telefones ADD CONSTRAINT posto_telefones_fk
+FOREIGN KEY (id_posto)
+REFERENCES public.posto (id_posto)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.produtos ADD CONSTRAINT posto_produtos_fk
+FOREIGN KEY (id_posto)
+REFERENCES public.posto (id_posto)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.combustivel ADD CONSTRAINT posto_combustivel_fk
+FOREIGN KEY (id_posto)
+REFERENCES public.posto (id_posto)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.servicos ADD CONSTRAINT posto_servicos_fk
+FOREIGN KEY (id_posto)
+REFERENCES public.posto (id_posto)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+
+------------ADICIONANDO TABELA DE GEOMETRIA EM POSTO-----
+select addgeometrycolumn('posto','geometria',4326,'POINT',2);
+
+----------ADCICIONANDO GEOMETRIA AUTOMATICAMENTE-------
+
+CREATE OR REPLACE FUNCTION insere_geometria() RETURNS trigger AS 
+$$
+BEGIN
+update posto set
+geometria=st_setsrid(st_makepoint(NEW.latitude,
+NEW.longitude), 4326) where id_posto=NEW.id_posto;
+RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;
+CREATE TRIGGER geometria AFTER INSERT ON posto FOR EACH
+ROW EXECUTE PROCEDURE insere_geometria();
+
+--------------------------------------------------------------------------------------------------INSERTS NA TABELA POSTO ----------------------------------------------------------------------------------------------------------
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('Ipiranga','Posto Ipiranga','Av Sarah Kubitschek, s/n - Parque Jk, Luziânia - GO, 72814-300','06:00:00','22:00:00',-47.9407570,-16.2351360);
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('ALE','Posto Alê','Av. Sara Kubitschek, 666 - Parque Jk, Luziânia - GO, 72815-450','06:00:00','22:00:00',-47.941572,-16.237196);
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('ALE','Posto Alpha Luziânia','Avenida Dona, Av. Sara Kubitschek - Parque Jk, Luziânia - GO, 72815-450','05:00:00','23:00:00',-47.944679,-16.237535);
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('Petrobras','Posto Petrobras','Av. Dona Sara, Av. Sara Kubitschek, N 15 - Lt07/12 - Parque Jk, Luziânia - GO, 72815-450','05:00:00','23:00:00',-47.944293,-16.241821);
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('Petrobras','Posto Aliança','Rodovia BR 040, Km 32, Qd 13, Lotes 3A 7 A 12 15 43, s/n - Luzília Parque, Luziânia - GO, 72800-970','06:00:00','22:00:00', -47.909540,-16.234439);
+
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('Ipiranga','Posto São Roque Nelore','Rodovia Br 040, km 24, Quadra 178, Lote 02 s/n - Parque Estrela Dalva, Luziânia - GO, 72800-000','00:00:00','00:00:00', -47.905013,-16.244592);
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('Petrobras','Posto Petrobras','Parque Estrela Dalva II, Luziânia - GO, 72820-020','06:00:00','22:00:00', -47.917544,-16.247600);
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('ALE','Posto Sansão','Av. Alfredo Nasser, S/N - Parque Estrela Dalva I, Luziânia - GO, 72800-000','06:00:00','21:00:00', -47.926599,-16.250772);
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('Petrobras','Posto Santa Maria - BR','Comendador Germano - Rua do Comércio, R. Benjamin Roriz, 156 - Centro, Luziânia - GO, 72800-010','06:00:00','23:00:00', -47.952978,-16.252859);
+
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('Petrobras','Posto Petrobras','Rua Sebastião Elias, 28 - Centro, Luziânia - GO, 72800-000','06:00:00','23:00:00', -47.944781,-16.252570);
+
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('Petrobras','Posto Petrobras','Av. Jovêntino Rodrigues - Vila Juracy, Luziânia - GO, 72803-010','06:00:00','23:00:00', -47.939846,-16.252652);
+
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('Petrobras','Auto Posto Minas Goiás','Av Santa Maria Qd 15 Lt 07 1 - St. Aeroporto, Luziânia - GO, 72801-010','06:00:00','23:00:00', -47.958473,-16.256689); 
+
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('Petrobras','Posto Ponteio','Centro, Luziânia - GO, 72800-290','06:00:00','23:00:00', -47.950502,-16.256894); 
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('Petrobras','Auto posto Sertanejo','St. Fumal, Luziânia - GO, 72801-520','06:00:00','22:00:00', -47.956320,-16.261652); 
+
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('Petrobras','Auto Posto Park JK','Avenida Doutor Neilo Rolim, Quadra 15 - Parque Alvorada I, Luziânia - GO, 72815-450','06:00:00','22:00:00', -47.933935 ,-16.222959);
+
+
+
+INSERT INTO  posto(bandeira,nome,endereco,horario_a,horario_f,latitude,longitude)
+VALUES('Petrobras','Posto são Cristóvão','Rodovia BR-040, Km 21,5, S/N - Vila Guara, Luziânia - GO, 72834-170','06:00:00','22:00:00', -47.914237 ,-16.220897); 
+
+
+---------------------------------------------------------------------------------INSERTS NA TABELA TELEFONES------------------------------------------------------------------------------------------------
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,08007205356,1)
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,36213498,2);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,36228765,3);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,36225301,4);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,36200763,5);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,34338000,6);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,36211344,7);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,36211006,8);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,36211006,9);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,36211039,10);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,996556803,11);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,616211148,12);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,36227294,13);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,36210987,14);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,36219832,15);
+
+INSERT INTO telefones(ddd,numero,id_posto)
+VALUES(61,36226566,16);
+
+---------------------------------------------------------------------------------INSERTS NA TABELA SERVICOS---------------------------------------------------------------------------------------------
+
+INSERT INTO servicos(nome,id_posto)
+VALUES('Conveniência',1);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Mecanico',1);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Caixa Eletrônico',2);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Mecânico',2);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Conveniencia',3);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Restaurante',3);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Mecânico',4);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Famácia',4);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Lava jato',5);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Conveniência',5);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Mecânico',6);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Loterica',6);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Restaurante',7);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Conveniência',7);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Lava Jato',8);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Conveniência',8);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Mecânico',9);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Borracharia',9);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Farmácia',10);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Conveniência',10);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Caixa Eletrônico',11);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Restaurante',11);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Borracharia',12);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Lava Jato',12);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Restaurante',13);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Farmácia',13);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Conveniência',14);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Borracharia',14);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Lava Jato',15);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Conveniência',15);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Restaurante',16);
+INSERT INTO servicos(nome,id_posto)
+VALUES('Farmácia',16);
+
+
+-------------------------------------------------------------------------------INSERTS NA TABELA PRODUTOS--------------------------------------------------------------------------------------
+
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'Carlos');
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'Leandro');
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'Marilda');
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'Letícia');
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'André');
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'Elizeu');
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'Marília');
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'Hellen');
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'Lara');
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'Camilla');
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'Christianne');
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'Gabriel');
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'Julio César');
+INSERT INTO usuario(tipo_permissao,nome)
+VALUES(2,'Ana Flávia');
+
+
+--------------------------------------------------------------------------INSERTS DA TABELA COMENTARIOS----------------------------------------------------------------------------------------------
+
+INSERT INTO comentarios(descricao,id_posto,id_usuario)
+VALUES('Pensa num posto horroroso. Atendimento Péssimo!',3,5);
+
+INSERT INTO comentarios(descricao,id_posto,id_usuario)
+VALUES('Ótimo Atendimento.',10,7);
+
+INSERT INTO comentarios(descricao,id_posto,id_usuario)
+VALUES('Muitos Serviços de Qulaidade. O mecênico de lá é ótimo!',15,9);
+
+INSERT INTO comentarios(descricao,id_posto,id_usuario)
+VALUES('Atendentes muito atenciosos, porém, a gasolina é muito cara!',4,11);
+
+INSERT INTO comentarios(descricao,id_posto,id_usuario)
+VALUES('Sem segurança alguma, vive tendo assalto aos funcionários e clientes',7,14);
+
+INSERT INTO comentarios(descricao,id_posto,id_usuario)
+VALUES('Parecia que estava num apocalypse zumbi. O posto todo sujo, cainda aos pedaços e os funcionários muito lerdos no atendimento',13,14);
+
+INSERT INTO comentarios(descricao,id_posto,id_usuario)
+VALUES('A loja de conveniência tem muitas opções e o preço da gasolina é justo',2,8);
+
+INSERT INTO comentarios(descricao,id_posto,id_usuario)
+VALUES('Tem muitos serviços. Consegui comprar algumas coisas que precisava na farmácia ,sacar um dinheiro no caixa eletrônico e fazer minha fezinha na lotérica ',6,11);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
