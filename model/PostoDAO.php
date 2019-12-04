@@ -7,7 +7,7 @@ class PostoDAO {
 
     var $conn;
 
-    function cursoDAO() {
+    function PostoDAO() {
         $database = new Sql();
         $this->conn = $database->openConnection();
     }
@@ -30,18 +30,85 @@ class PostoDAO {
     //=========== Pesquisa todos os Campos =============================
     public function Read() {
 
-        $sql = "select * from posto";
+       // $sql = "select * from posto";
         try {
-            $result = $this->conn->query($sql);
+        $result = $this->conn->query("SELECT * FROM posto");
         } catch (PDOException $e) {
             print $e->getMessage();
         }
         $postos = array();
         foreach ($result as $row) {
             $c = new Posto($row['id_posto'], $row['bandeira'], $row['nome'], $row['endereco'], $row['horario_a'],$row['horario_f'], $row['latitude'],$row['longitude']);
-            array_push($postos, $c);
+            $c1 = array(
+                'id_posto'=>$row['id_posto'],
+                'bandeira'=>$row['bandeira'],
+                'nome'=>$row['nome'],
+                'endereco'=>$row['endereco'],
+                'horario_a'=>$row['horario_a'],
+                'horario_f'=>$row['horario_f'],
+                'latitude'=>$row['latitude'],
+                'longitude'=>$row['longitude']
+            );
+            array_push($postos, $c1);
         }
         return $postos;
+    }
+
+
+    public function numeroDeLinhasDaTabela(){
+         try {
+        $result = $this->conn->query("SELECT * FROM posto");
+        } catch (PDOException $e) {
+            print $e->getMessage();
+        }
+        
+       
+        return $result->rowCount();
+
+    }
+
+     public function ids(){
+         try {
+        $result = $this->conn->query("SELECT id_posto FROM posto");
+        } catch (PDOException $e) {
+            print $e->getMessage();
+        }
+        
+        $ids = array();
+
+        foreach ($result as  $row) {
+            $i = array(
+                'id_posto'=>$row['id_posto']
+                
+            );
+            array_push($ids, $i);
+        }
+        return $ids;
+
+    }
+
+    public function informarJSID(){
+        $info = $this->ids();
+        $a = "";
+        for ($i=0; $i < $this->numeroDeLinhasDaTabela() ; $i++) { 
+            
+            $a .= implode(",", $info[$i]) . ",";
+        }
+       
+
+        return $a;
+    }
+    
+    public function informarJS(){
+        $info = $this->Read();
+        $a = "";
+        for ($i=0; $i < $this->numeroDeLinhasDaTabela() ; $i++) { 
+            
+            $a .= implode("|", $info[$i]) . "|";
+        }
+       
+
+        return $a;
     }
 
     

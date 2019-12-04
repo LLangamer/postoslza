@@ -2,7 +2,7 @@
  
 Class Sql {
  
-private  $server = "pgsql:host=localhost dbname=postoslza";
+private  $server = "pgsql:host=localhost;port=5433;dbname=postoslza";
  
 private  $user = "postgres";
  
@@ -20,7 +20,7 @@ protected $con;
  
                  {
  
-	        $this->con = new PDO($this->server, $this->user,$this->pass,$this->options);
+	        $this->con = new PDO($this->server,$this->user,$this->pass,$this->options);
  
 	        return $this->con;
  

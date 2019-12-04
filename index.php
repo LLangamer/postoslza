@@ -1,3 +1,22 @@
+<?php require_once('view/nav.html'); ?>
+<?php 
+		include'model/PostoDAO.php';
+		$dao = new PostoDAO();
+			
+		$postos = $dao->informarJS();
+		$ids = $dao->informarJSID();
+		
+
+		$script = "<script> 
+			
+					var b = '$postos';
+					var id = '$ids';
+						
+					</script>";
+		//$postoJS = "var pessoa = [ "+pessoaNomeJS.pessoaSobrenomeJS.pessoaAlturaJS+" ];";
+		echo $script;
+
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,11 +44,14 @@
 </head>
 <body>
 
-<?php require_once('view/nav.html'); ?>
 
+		
+		
 <div id="map" style="width: 100%; height: 630px;"></div>
 <script>
 
+	
+	
 	var 
 		mbUrl1= 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiaGVucmlwZmYiLCJhIjoiY2pvNHE4b2VzMDI5ZTNwb2MyNXBxdHppMCJ9.3oM1-lAM6KE_xOZGFelmFw',
 	    mbUrl2 = 'http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}';
@@ -49,17 +71,67 @@
 		markerColor: 'red'
 		});
 		
-		var teste;
-		var latitude = <?php echo -16.253590  ?>;
-		var longitude = <?php echo -47.941750  ?>;
-		//L.control.layers(baseLayers).addTo(map);
 		
+		//L.control.layers(baseLayers).addTo(map);
+		var variavel = 0;
+		var latitude = 7;
+		var longitude =6;
+		var nome = 2;
+		var bandeira = 1;
+		var endereco = 3;
+		var horarioa = 4;
+		var horariof = 5;
+		//alert();
+		//console.log(b);
+		var array_postos = b.split('|');
+		for (i in array_postos) {
+			//console.log((array_postos.length)/8);
+			//alert(array_postos[i]);
+			//console.log(array_postos[i]);
+			var v = array_postos[parseInt(i)+parseInt(variavel)];
+			var l = array_postos[parseInt(i)+parseInt(latitude)];
+			var lo = array_postos[parseInt(i)+parseInt(longitude)];
+			var n = array_postos[parseInt(i)+parseInt(nome)];
+			var b = array_postos[parseInt(i)+parseInt(bandeira)];
+			var e = array_postos[parseInt(i)+parseInt(endereco)];
+			var ha = array_postos[parseInt(i)+parseInt(horarioa)]
+			var hf = array_postos[parseInt(i)+parseInt(horariof)];
+			console.log(v+","+b+","+n+","+e+","+ha+","+hf+","+lo+","+l);
+			v =  L.marker([ l,lo ], {title: n , icon: p}).addTo(map);
+			v.bindPopup("<h1>Nome:</h1><b>"+n+"</b>"
+						+"<h1>Bandeira:</h1><b>"+b+"</b>"
+						+"<h1>Endereço:</h1><b>"+e+"</b>"
+						+"<h1>Horário de Funcionamento:</h1><b> Das "+ha+" às "+hf+"</b>");
+			 var limite = ((array_postos.length/8)-1);
+			if(i==parseInt(limite)){
+				break;
+			}else{
+			variavel += 7;
+			latitude += 7;
+			longitude += 7;
+			nome += 7;
+			bandeira += 7;
+			endereco += 7;
+			horarioa += 7;
+			horariof += 7;
+			}
+			
+
+		}
+
+
+		
+		var array_ids = id.split(',');
+		console.log(id);
+		id = id.substring(0,(id.length -1));
+		console.log(id);
+		var postos  = L.layerGroup(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16);
 		
 		
 		/*var marker = L.marker([-16.243333, -47.961867]).addTo(map);
 		marker.bindPopup("<b>IFG - Instituto Federal de Goi&aacutes</b>");*/
 		//alert("Passou aqui"+ latitude+ longitude);
-		var posto1 =  L.marker([latitude, longitude], {title:'Posto Serra do Lago', icon: p}).addTo(map);
+		/*var posto1 =  L.marker([latitude, longitude], {title:'Posto Serra do Lago', icon: p}).addTo(map);
 		posto1.bindPopup("<b>Posto Serra do Lago</b>");
 		
 		var posto2 =  L.marker([-16.259000, -47.949000], {title:'Posto 2', icon: p}).addTo(map);
@@ -67,10 +139,11 @@
 		var posto3 =  L.marker([-16.253598, -47.948005], {title:'Posto 3', icon: p}).addTo(map);
 		posto3.bindPopup("<b>Posto 3</b>");
 		var posto4 =  L.marker([-16.263598, -47.948005], {title:'Posto 4', icon: p}).addTo(map);
-		posto4.bindPopup("<b>Posto 4</b>");
+		posto4.bindPopup("<b>Posto 4</b>");*/
 		
 		
-		var postos  = L.layerGroup([posto1,posto2,posto3,posto4]);
+		
+		
 
 
 		/*var circle = L.circle([-16.250337, -47.952855], {
@@ -101,7 +174,12 @@
 		L.control.groupedLayers(baseMaps,groupedOverlays).addTo(map);
 		
 		//L.control.layers(baseLayers).addTo(map);
-		var searchLayer = L.layerGroup([posto1,posto2,posto3,posto4]).addTo(map);
+
+		var searchLayer;
+
+		
+		searchLayer = L.layerGroup(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16).addTo(map);
+		
 		map.addControl( new L.Control.Search({layer: searchLayer}));
 		
 		var latlng = L.control.coordinates({
@@ -114,22 +192,14 @@
 			
 		}).addTo(map);
 		
-		var teste = posto1.getLatLng();
-		console.log(teste.lng);
 		
-		//var postos;
-		
-		/*function addVariavel(){
-			for(var i=0;i<4;i++){
-				postos[i] = i;
-			}
-		}*/
 		
 		
 		
 		
 	
 </script>
+
 
 
 </body>
