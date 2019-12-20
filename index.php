@@ -1,18 +1,61 @@
 <?php require_once('view/nav.html'); ?>
 <?php 
 		include'model/PostoDAO.php';
-		$dao = new PostoDAO();
-			
-		$postos = $dao->informarJS();
-		$ids = $dao->informarJSID();
+		include'model/TelefoneDAO.php';
+		include'model/CombustivelDAO.php';
+		$daopostos= new PostoDAO();
+		$daotelefone = new TelefoneDAO();
+		$daocombustivel = new CombustivelDAO();
+		//$postos = $dao->informarJS();
+		//$ids = $dao->informarJSID();
+		$postosDAO = $daopostos->Read();
+		$telefoneDAO = $daotelefone->Read();
+		$combustivelDAO = $daocombustivel->Read();
 		
+		
+		foreach ($postosDAO as $row) {
+			@$id .=  $row->getId() . "|";
+			@$nome .= $row->getNome() . "|";
+			@$bandeira .= $row->getBandeira() . "|";
+			@$endereco .= $row->getEndereco() . "|";
+			@$horarioa .= $row->getHorario_a() . "|";
+			@$horariof .= $row->getHorario_f() . "|";
+			@$latitude .= $row->getLatitude() . "|";
+			@$longitude .= $row->getLongitude() . "|";
 
-		$script = "<script> 
-			
-					var b = '$postos';
-					var id = '$ids';
-						
+		}
+
+		foreach ($telefoneDAO as $row) {
+			@$ddd .= $row->getDdd(). "|";
+			@$numero .= $row->getNumero() ."|"; 
+			@$idposto .= $row->getId_posto()."|";
+		}
+
+		foreach ($combustivelDAO as $row) {
+			@$descricaoc .= $row->getDescricao(). "|";
+			@$preco .= $row->getPreco() ."|"; 
+			@$idpostoc .= $row->getId_posto()."|";
+		}
+
+		
+		$script = "<script>
+					
+					var id = '$id';
+					var nome = '$nome';
+					var bandeira = '$bandeira';
+					var endereco = '$endereco';
+					var horarioa = '$horarioa';
+					var horariof = '$horariof';
+					var latitude = '$latitude';
+					var longitude = '$longitude';
+					var ddd = '$ddd';
+					var numero = '$numero';
+					var idposto = '$idposto';
+					var descricaoc = '$descricaoc';
+					var preco = '$preco';
+					var idpostoc = '$idpostoc';
 					</script>";
+		
 		//$postoJS = "var pessoa = [ "+pessoaNomeJS.pessoaSobrenomeJS.pessoaAlturaJS+" ];";
 		echo $script;
 
@@ -38,6 +81,8 @@
 	<script src="js/leaflet.awesome-markers.js"></script>
 	<script src="js/leaflet.groupedlayercontrol.min.js"></script>
 	<script src="js/Leaflet.Coordinates-0.1.5.min.js"></script>
+
+	
 	
 	
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
@@ -70,20 +115,96 @@
 		prefix: 'fa',
 		markerColor: 'red'
 		});
+		console.log(array_id = id.split("|"));
+		id = id.substring(0,(id.length -1));
+		nome = nome.substring(0,nome.length -1);
+		bandeira = bandeira.substring(0,(bandeira.length -1));
+		endereco = endereco.substring(0,(endereco.length -1));
+		horarioa = horarioa.substring(0,(horarioa.length -1));
+		horariof = horariof.substring(0,(horariof.length -1));
+		latitude = latitude.substring(0,(latitude.length -1));
+		longitude = longitude.substring(0,(longitude.length -1));
+		ddd = ddd.substring(0,(ddd.length -1));
+		numero = numero.substring(0,(numero.length -1));
+		idposto = idposto.substring(0,(idposto.length -1));
+		descricaoc = descricaoc.substring(0,(descricaoc.length -1));
+		preco = preco.substring(0,(preco.length -1));
+		idpostoc = idpostoc.substring(0,(idpostoc.length -1));
+
+
+
+		array_id = id.split("|");
+		array_nome = nome.split("|");
+		array_bandeira = bandeira.split("|");
+		array_endereco = endereco.split("|");
+		array_horarioa = horarioa.split("|");
+		array_horariof = horariof.split("|");
+		array_latitude = latitude.split("|");
+		array_longitude = longitude.split("|");
+		array_ddd = ddd.split("|");
+		array_numero = numero.split("|");
+		array_idposto = idposto.split("|");
+		array_descricaoc = descricaoc.split("|");
+		array_preco = preco.split("|");
+		array_idpostoc = idpostoc.split("|");
+		
+
+
+
+		/*console.log(nome.split("|"));
+		console.log(bandeira.split("|"));
+		console.log(endereco.split("|"));
+		console.log(horarioa.split("|"));
+		console.log(horariof.split("|"));
+		console.log(latitude.split("|"));
+		console.log(longitude.split("|"));*/
+		var array_marker =[];
+		var tddd = [];
+		var tnumero = [];
+		var cdesc = [];
+		var cpreco = [];
+		for(i in array_id){
+			for(j in array_idposto){
+				if(array_idposto[j] == array_id[i] ){
+				tddd[i] = array_ddd[j]; 
+				tnumero[i] = array_numero[j];
+			}
+			}
+				for(k in  array_idpostoc){
+					if(array_idpostoc[k] == array_id[i] ){
+					cdesc[i] = array_descricaoc[k]; 
+					cpreco[i] = array_preco[k];
+			}
+				}
+			
+			array_marker[i]= L.marker([ array_longitude[i],array_latitude[i] ], {title: array_nome[i] , icon: p}).addTo(map);
+			array_marker[i].bindPopup("<h6><b>Nome</b>:"+array_nome[i]+"</h6>"+
+				"<h6><b>Bandeira</b>:"+array_bandeira[i]+"</h6>"+
+				"<h6><b>Endereço</b>:"+array_endereco[i]+"</h6>"+
+				"<h6><b>Horário de Funcionamento </b>: Das "+array_horarioa[i]+" ás "+array_horariof[i]+"</h6>"+
+				"<h6><b>Telefone</b>:"+tddd[i]+" "+tnumero[i]+
+				"<h6><b>"+cdesc[i]+"</b>:"+"R$ "+cpreco[i]
+				+"</h6>"
+				)
+				;
+		
+		}
 		
 		
+
 		//L.control.layers(baseLayers).addTo(map);
-		var variavel = 0;
+		/*var variavel = 0;
 		var latitude = 7;
 		var longitude =6;
 		var nome = 2;
 		var bandeira = 1;
 		var endereco = 3;
 		var horarioa = 4;
-		var horariof = 5;
+		var horariof = 5;*/
+		
 		//alert();
 		//console.log(b);
-		var array_postos = b.split('|');
+		/*var array_postos = b.split('|');
 		for (i in array_postos) {
 			//console.log((array_postos.length)/8);
 			//alert(array_postos[i]);
@@ -96,6 +217,7 @@
 			var e = array_postos[parseInt(i)+parseInt(endereco)];
 			var ha = array_postos[parseInt(i)+parseInt(horarioa)]
 			var hf = array_postos[parseInt(i)+parseInt(horariof)];
+			
 			console.log(v+","+b+","+n+","+e+","+ha+","+hf+","+lo+","+l);
 			v =  L.marker([ l,lo ], {title: n , icon: p}).addTo(map);
 			v.bindPopup("<h1>Nome:</h1><b>"+n+"</b>"
@@ -103,6 +225,7 @@
 						+"<h1>Endereço:</h1><b>"+e+"</b>"
 						+"<h1>Horário de Funcionamento:</h1><b> Das "+ha+" às "+hf+"</b>");
 			 var limite = ((array_postos.length/8)-1);
+
 			if(i==parseInt(limite)){
 				break;
 			}else{
@@ -114,18 +237,24 @@
 			endereco += 7;
 			horarioa += 7;
 			horariof += 7;
+			
+			
 			}
 			
 
 		}
 
+		var algumacoiisa= ["ola","ola2",""];
+		console.log(algumacoiisa[1]);*/
 
 		
-		var array_ids = id.split(',');
-		console.log(id);
-		id = id.substring(0,(id.length -1));
-		console.log(id);
-		var postos  = L.layerGroup(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16);
+		
+			
+				var postos  = L.layerGroup(array_marker);
+			
+			
+			
+		
 		
 		
 		/*var marker = L.marker([-16.243333, -47.961867]).addTo(map);
@@ -134,8 +263,7 @@
 		/*var posto1 =  L.marker([latitude, longitude], {title:'Posto Serra do Lago', icon: p}).addTo(map);
 		posto1.bindPopup("<b>Posto Serra do Lago</b>");
 		
-		var posto2 =  L.marker([-16.259000, -47.949000], {title:'Posto 2', icon: p}).addTo(map);
-		posto2.bindPopup("<b>Posto 2</b>");
+		
 		var posto3 =  L.marker([-16.253598, -47.948005], {title:'Posto 3', icon: p}).addTo(map);
 		posto3.bindPopup("<b>Posto 3</b>");
 		var posto4 =  L.marker([-16.263598, -47.948005], {title:'Posto 4', icon: p}).addTo(map);
@@ -176,11 +304,14 @@
 		//L.control.layers(baseLayers).addTo(map);
 
 		var searchLayer;
-
 		
-		searchLayer = L.layerGroup(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16).addTo(map);
+		
+		
+
+		searchLayer = L.layerGroup(array_marker).addTo(map);
 		
 		map.addControl( new L.Control.Search({layer: searchLayer}));
+		
 		
 		var latlng = L.control.coordinates({
 			position:"bottomleft",

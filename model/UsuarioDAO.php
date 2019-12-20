@@ -34,7 +34,7 @@ class UsuarioDAO {
         }
         $usuario = array();
         foreach ($result as $row) {
-            $u = new Usuario($row['idusuario'], $row['nome'], $row['login'], $row['senha'], $row['email'], $row['permissao'], $row['fotoperfil']);
+            $u = new Usuario($row['id_usuario'], $row['nome'], $row['login'], $row['senha'], "", $row['tipo_permissao'],"");
 
             array_push($usuario, $u);
         }

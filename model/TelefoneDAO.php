@@ -34,7 +34,7 @@ class TelefoneDAO {
         }
         $telefones = array();
         foreach ($result as $row) {
-            $u = new Combustivel($row['id_telefone'], $row['ddd'], $row['numero'], $row['id_posto']);
+            $u = new Telefone($row['id_telefone'], $row['ddd'], $row['numero'], $row['id_posto']);
 
             array_push($telefones, $u);
         }

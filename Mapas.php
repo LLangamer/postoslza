@@ -1,3 +1,60 @@
+<?php require_once('view/nav.html'); ?>
+
+<?php 
+
+include'model/PostoDAO.php';
+		include'model/TelefoneDAO.php';
+		$daopostos= new PostoDAO();
+		$daotelefone = new TelefoneDAO();
+		//$postos = $dao->informarJS();
+		//$ids = $dao->informarJSID();
+		$postosDAO = $daopostos->Read();
+		$telefoneDAO = $daotelefone->Read();
+		
+		
+		foreach ($postosDAO as $row) {
+			@$id .=  $row->getId() . "|";
+			@$nome .= $row->getNome() . "|";
+			@$bandeira .= $row->getBandeira() . "|";
+			@$endereco .= $row->getEndereco() . "|";
+			@$horarioa .= $row->getHorario_a() . "|";
+			@$horariof .= $row->getHorario_f() . "|";
+			@$latitude .= $row->getLatitude() . "|";
+			@$longitude .= $row->getLongitude() . "|";
+		}
+
+		foreach ($telefoneDAO as $row) {
+			@$ddd .= $row->getDdd(). "|";
+			@$numero .= $row->getNumero() ."|"; 
+			@$idposto .= $row->getId_posto()."|";
+		}
+
+		
+		$script = "<script>
+					
+					var id = '$id';
+					var nome = '$nome';
+					var bandeira = '$bandeira';
+					var endereco = '$endereco';
+					var horarioa = '$horarioa';
+					var horariof = '$horariof';
+					var latitude = '$latitude';
+					var longitude = '$longitude';
+					var ddd = '$ddd';
+					var numero = '$numero';
+					var idposto = '$idposto';
+						
+					</script>";
+		
+		//$postoJS = "var pessoa = [ "+pessoaNomeJS.pessoaSobrenomeJS.pessoaAlturaJS+" ];";
+		echo $script;
+
+
+
+
+
+
+ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,7 +69,7 @@
 	<link rel="stylesheet" href="css/leaflet.groupedlayercontrol.min.css"/>
 	<link rel="stylesheet" href="css/Leaflet.Coordinates-0.1.5.css"/>
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
-	
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 	
 	<script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"></script>	
 	<script src="js/leaflet-search.js"></script>
@@ -27,7 +84,7 @@
 
 
 
-<div id="map" style="width: 100%; height: 940px;"></div>
+<div id="map" style="width: 100%; height: 500px;"></div>
 <script>
 
 	var 
@@ -50,27 +107,83 @@
 		});
 		
 		var teste;
-		var latitude = <?php echo -16.253590  ?>;
-		var longitude = <?php echo -47.941750  ?>;
+	
 		//L.control.layers(baseLayers).addTo(map);
 		
+		id = id.substring(0,(id.length -1));
+		nome = nome.substring(0,nome.length -1);
+		bandeira = bandeira.substring(0,(bandeira.length -1));
+		endereco = endereco.substring(0,(endereco.length -1));
+		horarioa = horarioa.substring(0,(horarioa.length -1));
+		horariof = horariof.substring(0,(horariof.length -1));
+		latitude = latitude.substring(0,(latitude.length -1));
+		longitude = longitude.substring(0,(longitude.length -1));
+		ddd = ddd.substring(0,(ddd.length -1));
+		numero = numero.substring(0,(numero.length -1));
+		idposto = idposto.substring(0,(idposto.length -1));
+
+
+		array_id = id.split("|");
+		array_nome = nome.split("|");
+		array_bandeira = bandeira.split("|");
+		array_endereco = endereco.split("|");
+		array_horarioa = horarioa.split("|");
+		array_horariof = horariof.split("|");
+		array_latitude = latitude.split("|");
+		array_longitude = longitude.split("|");
+		array_ddd = ddd.split("|");
+		array_numero = numero.split("|");
+		array_idposto = idposto.split("|");
+		
+
+
+
+		/*console.log(nome.split("|"));
+		console.log(bandeira.split("|"));
+		console.log(endereco.split("|"));
+		console.log(horarioa.split("|"));
+		console.log(horariof.split("|"));
+		console.log(latitude.split("|"));
+		console.log(longitude.split("|"));*/
+		var array_marker =[];
+		var tddd = [];
+		var tnumero = [];
+		for(i in array_id){
+			for(j in array_idposto){
+				if(array_idposto[j] == array_id[i] ){
+				tddd[i] = array_ddd[j]; 
+				tnumero[i] = array_numero[j];
+
+			}else{
+				
+			}
+			
+			}
+			
+			array_marker[i]= L.marker([ array_longitude[i],array_latitude[i] ], {title: array_nome[i] , icon: p}).addTo(map);
+			array_marker[i].bindPopup("<h6><b>Nome</b>:"+array_nome[i]+"</h6>"+
+				"<h6><b>Bandeira</b>:"+array_bandeira[i]+"</h6>"+
+				"<h6><b>Endereço</b>:"+array_endereco[i]+"</h6>"+
+				"<h6><b>Horário de Funcionamento </b>: Das "+array_horarioa[i]+" ás "+array_horariof[i]+"</h6>"+
+				"<h6><b>Telefone</b>:"+tddd[i]+" "+tnumero[i]
+
+
+
+
+				+"</h6>"
+				)
+				;
+		
+		}
 		
 		
 		/*var marker = L.marker([-16.243333, -47.961867]).addTo(map);
 		marker.bindPopup("<b>IFG - Instituto Federal de Goi&aacutes</b>");*/
-		alert("Passou aqui"+ latitude+ longitude);
-		var posto1 =  L.marker([latitude, longitude], {title:'Posto Serra do Lago', icon: p}).addTo(map);
-		posto1.bindPopup("<b>Posto Serra do Lago</b>");
-		
-		var posto2 =  L.marker([-16.259000, -47.949000], {title:'Posto 2', icon: p}).addTo(map);
-		posto2.bindPopup("<b>Posto 2</b>");
-		var posto3 =  L.marker([-16.253598, -47.948005], {title:'Posto 3', icon: p}).addTo(map);
-		posto3.bindPopup("<b>Posto 3</b>");
-		var posto4 =  L.marker([-16.263598, -47.948005], {title:'Posto 4', icon: p}).addTo(map);
-		posto4.bindPopup("<b>Posto 4</b>");
+		//alert("Passou aqui"+ latitude+ longitude);
 		
 		
-		var postos  = L.layerGroup([posto1,posto2,posto3,posto4]);
+		
+		var postos  = L.layerGroup(array_marker);
 
 
 		/*var circle = L.circle([-16.250337, -47.952855], {
@@ -101,8 +214,9 @@
 		L.control.groupedLayers(baseMaps,groupedOverlays).addTo(map);
 		
 		//L.control.layers(baseLayers).addTo(map);
-		var searchLayer = L.layerGroup([posto1,posto2,posto3,posto4]).addTo(map);
-		map.addControl( new L.Control.Search({layer: searchLayer}));
+		//var searchLayer = L.layerGroup([posto1,posto2,posto3,posto4]).addTo(map);
+		//map.addControl( new L.Control.Search({layer: searchLayer}));
+
 		
 		var latlng = L.control.coordinates({
 			position:"bottomleft",
@@ -114,8 +228,8 @@
 			
 		}).addTo(map);
 		
-		var teste = posto1.getLatLng();
-		console.log(teste.lng);
+		//var teste = posto1.getLatLng();
+		//console.log(teste.lng);
 		
 		//var postos;
 		
@@ -162,13 +276,59 @@
 	
 </script>
 
-Latitude
-<input id= "lat"type="text" name="lat" title="" value=""></input><br>
-Longitude
-<input id= "lng"type="text" name="lng" title="" value=""></input><br>
-Nome
-<input id= "nome"type="text" name="nome" title="" value=""></input><br>
-<button type="button" id="b" onclick="addMarker()" >Cadastrar Ponto</button>
+<form action="controller/salvarPosto.php" method="post" ">
+  <hr />
+
+  <div class="row ml-3" >
+  <h1>Cadastrar Posto</h1>
+	</div>
+  <div class="row ml-3" >
+
+  	<div class="form-group col-md-4">
+      <label for="campo3">Nome</label>
+      <input id="nome"type="text" class="form-control" name="nome" value="" required>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="name">Latitude</label>
+      <input id="lat" type="text" class="form-control" name="lat" value="" required>
+    </div>
+
+    <div class="form-group col-md-4">
+      <label for="campo2">Longitude</label>
+      <input 	id="lng"type="text" class="form-control" id="cpfcnpj" name="lng" value="" maxLength="18" onkeypress="" onblur="" required>
+    </div>
+
+    
+  </div>
+  <div class="row ml-3">
+    <div class="form-group col-md-5">
+      <label for="campo1">Endereço</label>
+      <input type="text" class="form-control" name="endereco" value="" required>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="campo1">Bandeira</label>
+      <input type="text" class="form-control" name="bandeira" value="" required>
+    </div>
+
+      <div class="form-group col-md-4">
+      <label for="campo1">Horário de Abertura</label>
+      <input type="time" class="form-control" name="ha" value="" required>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="campo1">Horário de Fechamento</label>
+      <input type="time" class="form-control" name="hf" value="" required>
+    </div>
+    
+    
+
+      
+    
+    <div class="col-md-12">
+      <button   type="submit" class="btn btn-primary">Salvar</button>
+      <a href="index.php" class="btn btn-default">Cancelar</a>
+    </div>
+  </div>
+</form>
 </body>
 
 </html>

@@ -13,7 +13,7 @@ class PostoDAO {
     }
 
     public function Create($posto) {
-        $sql = "INSERT INTO posto (bandeira, nome, endereco, horario_a,horario_f,latitude,longitude) VALUES ('" . $bandeira->getBandeira() . "', '" . $posto->getNome() . "', '" . $posto->getEndereco() . "' , '" . $posto->getHorario_a() . "' , '" . $posto->getHorario_f() . "' , '" . $posto->getLatitude() . "' , '" . $posto->getLongitude() ."')";
+        $sql = "INSERT INTO posto (bandeira, nome, endereco, horario_a,horario_f,latitude,longitude) VALUES ('" . $posto->getBandeira() . "', '" . $posto->getNome() . "', '" . $posto->getEndereco() . "' , '" . $posto->getHorario_a() . "' , '" . $posto->getHorario_f() . "' , '" . $posto->getLongitude() . "' , '" . $posto->getLatitude() ."')";
 
         $this->conn->exec($sql);
     }
@@ -38,7 +38,7 @@ class PostoDAO {
         }
         $postos = array();
         foreach ($result as $row) {
-            $c = new Posto($row['id_posto'], $row['bandeira'], $row['nome'], $row['endereco'], $row['horario_a'],$row['horario_f'], $row['latitude'],$row['longitude']);
+            $c = new Posto($row['id_posto'], $row['nome'], $row['bandeira'], $row['endereco'], $row['horario_a'],$row['horario_f'], $row['latitude'],$row['longitude']);
             $c1 = array(
                 'id_posto'=>$row['id_posto'],
                 'bandeira'=>$row['bandeira'],
@@ -49,7 +49,7 @@ class PostoDAO {
                 'latitude'=>$row['latitude'],
                 'longitude'=>$row['longitude']
             );
-            array_push($postos, $c1);
+            array_push($postos, $c);
         }
         return $postos;
     }
